@@ -20,7 +20,6 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        // origin: 
         origin: ["https://letschatting0616.herokuapp.com"],
         methods: ["GET","POST"],
     },
