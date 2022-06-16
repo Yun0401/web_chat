@@ -9,7 +9,7 @@ app.use(cors());
 
 app.use(express.static("public")); 
 const path = require('path');
-// const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3000
 app.use(express.static(path.join(__dirname + "/public")));
 
 app.get('/*', function (req, res) {
@@ -18,37 +18,37 @@ app.get('/*', function (req, res) {
 
 const server = http.createServer(app);
 
-const io = new Server(server, {
-    cors: {
-        // origin: 
-        origin: ["https://letschatting0616.herokuapp.com:3001"],
-        methods: ["GET","POST"],
-    },
-});
+// const io = new Server(server, {
+//     cors: {
+//         // origin: 
+//         origin: ["https://letschatting0616.herokuapp.com"],
+//         methods: ["GET","POST"],
+//     },
+// });
 
-io.on("connection",(socket)=>{
-    console.log(`User Connected: ${socket.id}`);
+// io.on("connection",(socket)=>{
+//     console.log(`User Connected: ${socket.id}`);
 
-    socket.on("join_room",(data)=>{
-        socket.join(data);
-        console.log(`User with ID: ${socket.id} join room ${data}`);
-    });
-    socket.on("send_message", (data) => {
-        // let stri = '';
-        // for(var i=0;i<data.message.length;i++){
-        //     var ch = data.message[i];
-        //     var n = ch.charCodeAt()+2;
-        //     stri += String.fromCharCode(n);
-        // }
-        // data.message = stri;
-        socket.to(data.room).emit("receive_message",data);
+//     socket.on("join_room",(data)=>{
+//         socket.join(data);
+//         console.log(`User with ID: ${socket.id} join room ${data}`);
+//     });
+//     socket.on("send_message", (data) => {
+//         // let stri = '';
+//         // for(var i=0;i<data.message.length;i++){
+//         //     var ch = data.message[i];
+//         //     var n = ch.charCodeAt()+2;
+//         //     stri += String.fromCharCode(n);
+//         // }
+//         // data.message = stri;
+//         socket.to(data.room).emit("receive_message",data);
         
-    });
-    socket.on("disconnect",()=>{
-        console.log("User Disconnected", socket.id);
-    });
-});
+//     });
+//     socket.on("disconnect",()=>{
+//         console.log("User Disconnected", socket.id);
+//     });
+// });
 
-server.listen(3001, ()=>{
+server.listen(PORT, ()=>{
     console.log("SERVER RUNNING");
 });
