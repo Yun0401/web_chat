@@ -14,15 +14,16 @@ const {encode} = require('./encode');
 
 dotenv.config();
 
-// app.use(express.static("public")); 
-// const path = require('path');
-// const PORT = process.env.PORT || 3001
-//3000
-// app.use(express.static(path.join(__dirname + "/public")));
+app.use(express.static("public")); 
+const path = require('path');
+const PORT = process.env.PORT || 3001
+3000
+app.use(express.static(path.join(__dirname + "/public")));
 
-// app.get('/*', function (req, res) {
-//     res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// });
+app.get('/*', function (req, res) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.use(express.json())
 mongoose.connect(process.env.MONGO_URL_N, ()=>console.log('DB connected'));
 // mongoose.connection.on('open',()=>{
@@ -71,8 +72,8 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3000"],
-        // origin: ["https://letschatting0616.herokuapp.com"],
+        // origin: ["http://localhost:3001"],
+        origin: ["https://letschatting0616.herokuapp.com"],
         methods: ["GET","POST"],
     },
 });
@@ -80,8 +81,8 @@ const io = new Server(server, {
 
 io.on("connection",(socket)=>{
     //初始資料
-    socket.on("init_set",(username)=>{
-        Model.find({person: username}).then(async (doc) => {
+    socket.on("init_set",(data)=>{
+        Model.find({person: data.user,room: data.room}).then(async (doc) => {
             let messList = [];
             doc.map((messData)=>{
                 let new_Data = {
@@ -163,6 +164,6 @@ io.on("connection",(socket)=>{
     });
 });
 
-server.listen(3001, ()=>{//PORT
+server.listen(PORT, ()=>{//PORT
     console.log("SERVER RUNNING");
 });
