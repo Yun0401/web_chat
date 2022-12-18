@@ -4,7 +4,7 @@ const tran_PtoD = [ 5,16,10, 2, 8,15,19,25, 1, 9, 4,14,18,22, 3,11, 7,13,24,12,2
 
 function encode(msg,username){
     let encode_Message = '';
-    if (username === 'doctor'){
+    if (username === '王祐誠 醫師'){
         for(let i=0;i<msg.length;i++){
             let ch = msg[i];
             let n = ch.charCodeAt();//way

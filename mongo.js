@@ -23,4 +23,21 @@ const messTemp = new mongoose.Schema({
     }     
 })
 
+const proTemp = new mongoose.Schema({
+    login: {
+        type:Boolean,
+        required:true
+    },
+    password: {
+        type:String,
+        required:true
+    },
+    doorlock: {
+        type:String,
+        required:true
+    }   
+})
+
+
 module.exports = mongoose.model('mytable',messTemp);
+// module.exports = mongoose.model('process',proTemp);

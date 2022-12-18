@@ -10,30 +10,27 @@ app.use(cors());
 const dotenv = require('dotenv');
 
 const messTemp = require('./mongo');
+// const proTemp = require('./mongo');
 const {encode} = require('./encode');
 
 dotenv.config();
 
+
+const PORT = process.env.PORT || 5000
+
+//
 app.use(express.static("public")); 
 const path = require('path');
-const PORT = process.env.PORT || 3001
-3000
 app.use(express.static(path.join(__dirname + "/public")));
 
 app.get('/*', function (req, res) {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+//
 
 app.use(express.json())
 mongoose.connect(process.env.MONGO_URL_N, ()=>console.log('DB connected'));
-// mongoose.connection.on('open',()=>{
-//     process.env.connect_database = 1;
-//     console.log('DB connect success');
-// });
-// mongoose.connection.on('error',()=>{
-//     process.env.connect_database = 0;
-//     console.log('DB connect failed');
-// });
+
 const conn = mongoose.createConnection(
     process.env.MONGO_URL_N, 
     {
@@ -42,10 +39,10 @@ const conn = mongoose.createConnection(
      }
   )
 
-const p1 = 'doctor';
+const p1 = '王祐誠 醫師';
 const p2 = '公用電腦';
 
-let Model = conn.model('mytable', new mongoose.Schema({
+let MessModel = conn.model('mytable', new mongoose.Schema({
     person: {
         type:String,
         required:true
@@ -68,12 +65,24 @@ let Model = conn.model('mytable', new mongoose.Schema({
     }     
 }));
 
+// let ProcessModel = conn.model('process', new mongoose.Schema({
+//     login: {
+//         type:Boolean,
+//         required:true
+//     },
+//     password: {
+//         type:String,
+//         required:true
+//     }
+        
+// }));
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        // origin: ["http://localhost:3001"],
-        origin: ["https://letschatting0616.herokuapp.com"],
+        // origin: ["http://localhost:3000"],
+        origin: ["https://cycle-escape2022.onrender.com"],
         methods: ["GET","POST"],
     },
 });
@@ -82,7 +91,7 @@ const io = new Server(server, {
 io.on("connection",(socket)=>{
     //初始資料
     socket.on("init_set",(data)=>{
-        Model.find({person: data.user,room: data.room}).then(async (doc) => {
+        MessModel.find({person: data.user,room: data.room}).then(async (doc) => {
             let messList = [];
             doc.map((messData)=>{
                 let new_Data = {
@@ -93,43 +102,31 @@ io.on("connection",(socket)=>{
                 };
                 messList = [...messList,new_Data];
             });
-            // app.post('/sixpin00', function (req, res) {
-            //     res.send("hi");
-            //     console.log('hihi');
-            // });
+        
+
             await io.to(socket.id).emit("initial_message",messList);
             console.log(messList);
         });
+        // ProcessModel.find({login: data.login,password: data.password}).then(async (pro) => {
+        //     let proList = [];
+        //     pro.map((proData)=>{
+        //         let new_Data = {
+        //             login: proData.login,
+        //             password : proData.password
+        //         };
+        //         proList = [new_Data];
+        //     });
+        //     console.log(proList);
+        // });
+        
     });
     
-    // console.log(`User Connected: ${socket.id}`);
     socket.on("join_room",(data)=>{
         socket.join(data);
         console.log(`User with ID: ${socket.id} join room ${data}`);           
-    })
-    
-    // socket.on("init_page",()=>{
-        // Model.find({person: 'doctor'}).then(async (doc) => {
-        //     let messList = [];
-        //     doc.map((messData)=>{
-        //         let new_Data = {
-        //             room: messData.room,
-        //             author: messData.author,
-        //             message: messData.message,
-        //             time: messData.time
-        //         };
-        //         messList = [...messList,new_Data];
-        //     });
-        //     // app.post('/sixpin00', function (req, res) {
-        //     //     res.send("hi");
-        //     //     console.log('hihi');
-        //     // });
-        //     await io.to(socket.id).emit("initial_message",messList);
-        //     console.log(messList);
-        // });
-    // })
-    
+    })  
 
+    //傳資料&加密
     socket.on("send_message", (data) => {
         
         const newData = encode(data.message,data.author)
@@ -160,7 +157,7 @@ io.on("connection",(socket)=>{
         
     });
     socket.on("disconnect",()=>{
-        // console.log("User Disconnected", socket.id);
+        console.log("User Disconnected", socket.id);
     });
 });
 
