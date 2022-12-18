@@ -10,7 +10,7 @@ app.use(cors());
 const dotenv = require('dotenv');
 
 const messTemp = require('./mongo');
-// const proTemp = require('./mongo');
+const proTemp = require('./processDB');
 const {encode} = require('./encode');
 
 dotenv.config();
@@ -18,7 +18,7 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000
 
-//
+// web_change 3/4
 app.use(express.static("public")); 
 const path = require('path');
 app.use(express.static(path.join(__dirname + "/public")));
@@ -65,23 +65,32 @@ let MessModel = conn.model('mytable', new mongoose.Schema({
     }     
 }));
 
-// let ProcessModel = conn.model('process', new mongoose.Schema({
-//     login: {
-//         type:Boolean,
-//         required:true
-//     },
-//     password: {
-//         type:String,
-//         required:true
-//     }
+let ProcessModel = conn.model('process', new mongoose.Schema({
+    person:{
+        type:String,
+        required:true
+    },
+    login: {
+        type:Boolean,
+        required:true
+    },
+    password: {
+        type:String,
+        required:true
+    },
+    doorlock: {
+        type:Boolean,
+        required:true
+    }
         
-// }));
+}));
 
 const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
         // origin: ["http://localhost:3000"],
+        // web_change 4/4
         origin: ["https://cycle-escape2022.onrender.com"],
         methods: ["GET","POST"],
     },
@@ -107,20 +116,30 @@ io.on("connection",(socket)=>{
             await io.to(socket.id).emit("initial_message",messList);
             console.log(messList);
         });
-        // ProcessModel.find({login: data.login,password: data.password}).then(async (pro) => {
-        //     let proList = [];
-        //     pro.map((proData)=>{
-        //         let new_Data = {
-        //             login: proData.login,
-        //             password : proData.password
-        //         };
-        //         proList = [new_Data];
-        //     });
-        //     console.log(proList);
-        // });
-        
     });
-    
+    socket.on("get_process_data",(data)=>{
+        ProcessModel.find({person:data.user}).then(async (pro) => {
+
+            let proData = pro.pop();
+            let proList = {
+                person:data.user,
+                login: proData.login,
+                password : proData.password,
+                doorlock: proData.doorlock
+            }
+            await io.to(socket.id).emit("process_data",proList);
+        });
+    })
+    socket.on("set_process_data",async (data)=>{
+        const processData = new proTemp({
+            person: data.info.person,
+            login: data.info.login,
+            password : data.info.password,
+            doorlock: data.info.doorlock,
+        });
+        await processData.save();
+    })
+
     socket.on("join_room",(data)=>{
         socket.join(data);
         console.log(`User with ID: ${socket.id} join room ${data}`);           
@@ -151,7 +170,7 @@ io.on("connection",(socket)=>{
             time: data.time
         })
         socket.to(data.room).emit("receive_message",newMess);
-        socket.to(socket.id).emit("initial_message","hi");
+        // socket.to(socket.id).emit("initial_message","hi");
         messData.save();
         otherMessData.save();
         
