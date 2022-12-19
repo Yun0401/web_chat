@@ -18,7 +18,7 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000
 
-// web_change 3/4
+// web_change 2/3
 app.use(express.static("public")); 
 const path = require('path');
 app.use(express.static(path.join(__dirname + "/public")));
@@ -90,7 +90,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         // origin: ["http://localhost:3000"],
-        // web_change 4/4
+        // web_change 3/3
         origin: ["https://cycle-escape2022.onrender.com"],
         methods: ["GET","POST"],
     },
@@ -114,13 +114,11 @@ io.on("connection",(socket)=>{
         
 
             await io.to(socket.id).emit("initial_message",messList);
-            // console.log(messList);
         });
     });
     socket.on("get_process_data",(data)=>{
         ProcessModel.find({person:data.user}).then(async (pro) => {
             let proData = pro.pop();
-            // console.log(pro);
             let proList = {
                 person:data.user,
                 login: proData.login,
@@ -138,6 +136,30 @@ io.on("connection",(socket)=>{
             doorlock: data.info.doorlock,
         });
         await processData.save();
+    })
+
+    socket.on('reset_process',async()=>{
+        ProcessModel.deleteMany({}).then(function(){
+            console.log("Process Data reset"); // Success
+        }).catch(function(error){
+            console.log(error); // Failure
+        });
+        const processData = new proTemp({
+            person: "Yu-Cheng Wang",
+            login: false,
+            password : "escapebfyj2022",
+            doorlock: false
+        });
+        await processData.save();
+
+    })
+
+    socket.on('reset_mess',async()=>{
+        MessModel.deleteMany({}).then(function(){
+            console.log("Message Data deleted"); // Success
+        }).catch(function(error){
+            console.log(error); // Failure
+        });
     })
 
     socket.on("join_room",(data)=>{
