@@ -114,13 +114,13 @@ io.on("connection",(socket)=>{
         
 
             await io.to(socket.id).emit("initial_message",messList);
-            console.log(messList);
+            // console.log(messList);
         });
     });
     socket.on("get_process_data",(data)=>{
         ProcessModel.find({person:data.user}).then(async (pro) => {
-
             let proData = pro.pop();
+            // console.log(pro);
             let proList = {
                 person:data.user,
                 login: proData.login,
