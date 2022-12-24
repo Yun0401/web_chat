@@ -4,7 +4,7 @@
 
 function encode(msg,username){
     let encode_Message = '';
-    if (username === '王祐誠 醫師'){
+    if (username === '王祐誠'){
         for(let i=0;i<msg.length;i++){
             let ch = msg[i];
             let n = ch.charCodeAt();//way 65 97

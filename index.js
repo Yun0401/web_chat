@@ -39,7 +39,7 @@ const conn = mongoose.createConnection(
      }
   )
 
-const p1 = '王祐誠 醫師';
+const p1 = '王祐誠';
 const p2 = '公用電腦';
 
 let MessModel = conn.model('mytable', new mongoose.Schema({
